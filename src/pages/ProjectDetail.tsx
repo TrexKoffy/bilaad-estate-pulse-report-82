@@ -25,7 +25,6 @@ import {
   Save,
   Home
 } from "lucide-react";
-import realEstateHeaderBg from "@/assets/real-estate-header-bg.jpg";
 
 export default function ProjectDetail() {
   const { projectId } = useParams();
@@ -75,36 +74,31 @@ export default function ProjectDetail() {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
-      <div 
-        className="relative bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${realEstateHeaderBg})`
-        }}
-      >
+      <div className="bg-gradient-secondary">
         <div className="container mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link to="/">
-                <Button variant="outline" className="bg-white/10 border-white/20 text-foreground hover:bg-white/20">
+                <Button variant="outline" className="bg-primary/10 border-primary/20 text-white hover:bg-primary/20">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Dashboard
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-foreground flex items-center gap-3 drop-shadow-lg">
+                <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                   <Building2 className="h-8 w-8" />
                   {project.name} Estate
                 </h1>
-                <p className="text-muted-foreground text-lg drop-shadow-md">Project Management Details</p>
+                <p className="text-white/90 text-lg">Project Management Details</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Badge className={`${statusColors[project.status]} border-0 text-base px-4 py-2 shadow-lg`}>
+              <Badge className={`${statusColors[project.status]} border-0 text-base px-4 py-2`}>
                 {statusLabels[project.status]}
               </Badge>
               <Button 
                 variant={isEditing ? "default" : "outline"}
-                className={isEditing ? "bg-primary text-primary-foreground shadow-lg" : "bg-white/10 border-white/20 text-foreground hover:bg-white/20 shadow-lg"}
+                className={isEditing ? "bg-primary text-primary-foreground" : "bg-primary/10 border-primary/20 text-white hover:bg-primary/20"}
                 onClick={isEditing ? handleSave : () => setIsEditing(true)}
               >
                 {isEditing ? <Save className="h-4 w-4 mr-2" /> : <Edit3 className="h-4 w-4 mr-2" />}

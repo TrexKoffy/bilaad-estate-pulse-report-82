@@ -23,17 +23,14 @@ import {
   FileText,
   Edit3,
   Save,
-  Home,
-  Download
+  Home
 } from "lucide-react";
 import realEstateHeaderBg from "@/assets/real-estate-header-bg.jpg";
-import { useToast } from "@/hooks/use-toast";
 
 export default function ProjectDetail() {
   const { projectId } = useParams();
   const project = mockProjects.find(p => p.id === projectId);
   const [isEditing, setIsEditing] = useState(false);
-  const { toast } = useToast();
   const [editableNotes, setEditableNotes] = useState({
     weekly: project?.weeklyNotes || "",
     monthly: project?.monthlyNotes || "",
@@ -73,47 +70,6 @@ export default function ProjectDetail() {
     // In a real app, this would save to a database
     console.log("Saving changes:", editableNotes);
     setIsEditing(false);
-  };
-
-  const handleExportReport = () => {
-    const reportData = {
-      projectName: project.name,
-      projectId: project.id,
-      exportDate: new Date().toISOString().split('T')[0],
-      progress: project.progress,
-      status: project.status,
-      unitsSummary: {
-        total: project.totalUnits,
-        completed: project.completedUnits
-      },
-      budget: project.budget,
-      targetCompletion: project.targetCompletion,
-      location: project.location,
-      manager: project.manager,
-      currentPhase: project.currentPhase,
-      weeklyNotes: project.weeklyNotes,
-      monthlyNotes: project.monthlyNotes,
-      targetMilestone: project.targetMilestone,
-      completedActivities: project.completedActivities,
-      activitiesInProgress: project.activitiesInProgress,
-      challenges: project.challenges,
-      unitDetails: project.units
-    };
-
-    const dataStr = JSON.stringify(reportData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = `${project.name.replace(/\s+/g, '_')}_Report_${new Date().toISOString().split('T')[0]}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-
-    toast({
-      title: "Report Exported",
-      description: `${project.name} report has been downloaded successfully.`,
-    });
   };
 
   return (
@@ -449,23 +405,6 @@ export default function ProjectDetail() {
                 </CardContent>
               </Card>
             </div>
-            
-            {/* Quick Actions */}
-            <Card className="border-0 shadow-card">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  onClick={handleExportReport}
-                  className="w-full"
-                  variant="outline"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Report
-                </Button>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </div>

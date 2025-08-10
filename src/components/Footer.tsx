@@ -25,8 +25,16 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-primary text-primary-foreground py-12 mt-auto">
-      <div className="container mx-auto px-6">
+    <footer 
+      className="bg-slate-900 text-white py-12 mt-auto relative overflow-hidden"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('/src/assets/real-estate-header-bg.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      <div className="container mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Contact Information */}
           <div className="space-y-4">
@@ -34,7 +42,7 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 mt-1 text-accent flex-shrink-0" />
-                <p className="text-sm">
+                <p className="text-sm text-white">
                   No 47 ML Wushishi Crescent Utako Abuja, Adjacent CBN Quarters
                 </p>
               </div>
@@ -42,7 +50,7 @@ const Footer = () => {
                 <Mail className="w-5 h-5 text-accent" />
                 <a 
                   href="mailto:info@bilaadprojects.com" 
-                  className="text-sm hover:text-accent transition-colors"
+                  className="text-sm text-white hover:text-accent transition-colors"
                 >
                   info@bilaadprojects.com
                 </a>
@@ -51,7 +59,7 @@ const Footer = () => {
                 <Phone className="w-5 h-5 text-accent" />
                 <a 
                   href="tel:07002222111" 
-                  className="text-sm hover:text-accent transition-colors"
+                  className="text-sm text-white hover:text-accent transition-colors"
                 >
                   0700 222 2111
                 </a>
@@ -80,15 +88,19 @@ const Footer = () => {
 
           {/* Company Info */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-accent">BILAAD Realty</h3>
-            <p className="text-sm opacity-90">
+            <div className="flex items-center">
+              <div className="text-2xl font-bold text-accent">
+                BILAAD REALTY
+              </div>
+            </div>
+            <p className="text-sm text-white/90">
               Leading real estate development company providing quality housing solutions and project management services across Nigeria.
             </p>
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 mt-8 pt-6 text-center">
-          <p className="text-sm opacity-75">
+        <div className="border-t border-white/20 mt-8 pt-6 text-center">
+          <p className="text-sm text-white/75">
             © {new Date().getFullYear()} BILAAD Realty Nigeria Ltd. All rights reserved.
           </p>
         </div>

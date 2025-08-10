@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,8 @@ export default function ProjectDetail() {
   const { projectId } = useParams();
   const project = mockProjects.find(p => p.id === projectId);
   const [isEditing, setIsEditing] = useState(false);
+  const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [editableNotes, setEditableNotes] = useState({
     weekly: project?.weeklyNotes || "",
     monthly: project?.monthlyNotes || "",
@@ -72,6 +74,14 @@ export default function ProjectDetail() {
     setIsEditing(false);
   };
 
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const newPhotos = Array.from(files).map(file => URL.createObjectURL(file));
+      setUploadedPhotos(prev => [...prev, ...newPhotos]);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
@@ -85,17 +95,17 @@ export default function ProjectDetail() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link to="/">
-                <Button variant="outline" className="bg-white/10 border-white/20 text-foreground hover:bg-white/20">
+                <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Dashboard
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-foreground flex items-center gap-3 drop-shadow-lg">
+                <h1 className="text-3xl font-bold text-white flex items-center gap-3 drop-shadow-lg">
                   <Building2 className="h-8 w-8" />
                   {project.name} Estate
                 </h1>
-                <p className="text-muted-foreground text-lg drop-shadow-md">Project Management Details</p>
+                <p className="text-white/80 text-lg drop-shadow-md">Project Management Details</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -104,7 +114,7 @@ export default function ProjectDetail() {
               </Badge>
               <Button 
                 variant={isEditing ? "default" : "outline"}
-                className={isEditing ? "bg-primary text-primary-foreground shadow-lg" : "bg-white/10 border-white/20 text-foreground hover:bg-white/20 shadow-lg"}
+                className={isEditing ? "bg-primary text-primary-foreground shadow-lg" : "bg-white/10 border-white/20 text-white hover:bg-white/20 shadow-lg"}
                 onClick={isEditing ? handleSave : () => setIsEditing(true)}
               >
                 {isEditing ? <Save className="h-4 w-4 mr-2" /> : <Edit3 className="h-4 w-4 mr-2" />}
@@ -394,14 +404,62 @@ export default function ProjectDetail() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <Camera className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground mb-4">No progress photos uploaded yet.</p>
-                  <Button variant="outline">
-                    <Camera className="h-4 w-4 mr-2" />
-                    Upload Photos
-                  </Button>
-                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handlePhotoUpload}
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                />
+                
+                {uploadedPhotos.length > 0 ? (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {uploadedPhotos.map((photo, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={photo}
+                            alt={`Progress photo ${index + 1}`}
+                            className="w-full h-48 object-cover rounded-lg border border-border"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => {
+                              setUploadedPhotos(prev => prev.filter((_, i) => i !== index));
+                              URL.revokeObjectURL(photo);
+                            }}
+                          >
+                            ×
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-center">
+                      <Button 
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Camera className="h-4 w-4 mr-2" />
+                        Upload More Photos
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Camera className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground mb-4">No progress photos uploaded yet.</p>
+                    <Button 
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Camera className="h-4 w-4 mr-2" />
+                      Upload Photos
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

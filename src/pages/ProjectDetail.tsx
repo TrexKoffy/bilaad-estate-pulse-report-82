@@ -275,6 +275,45 @@ export default function ProjectDetail() {
                     <UnitCard key={unit.id} unit={unit} />
                   ))}
                 </div>
+                
+                {/* Quick Actions */}
+                <div className="mt-8 pt-6 border-t">
+                  <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+                  <div className="flex flex-wrap gap-4">
+                    <Button 
+                      onClick={() => {
+                        const unitData = {
+                          projectName: project.name,
+                          units: project.units,
+                          exportDate: new Date().toISOString(),
+                          totalUnits: project.units.length
+                        };
+                        const dataStr = JSON.stringify(unitData, null, 2);
+                        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                        const url = URL.createObjectURL(dataBlob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `${project.name}_unit_reports_${new Date().toISOString().split('T')[0]}.json`;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                      }}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Export Unit Reports
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        // In a real app, this would open a calendar/scheduling modal
+                        alert('Schedule Review Meeting feature would open a calendar here');
+                      }}
+                    >
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Schedule Review Meeting
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

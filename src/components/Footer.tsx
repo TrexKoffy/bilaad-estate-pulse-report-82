@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Linkedin, Twitter, Mail, Phone, MapPin } from "lucide-react";
+import bilaadLogo from "../assets/bilaad-realty-logo.png";
 
 const Footer = () => {
   const socialLinks = [
@@ -89,9 +90,11 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center">
-              <div className="text-2xl font-bold text-accent">
-                BILAAD REALTY
-              </div>
+              <img 
+                src={bilaadLogo} 
+                alt="BILAAD REALTY Logo" 
+                className="h-16 w-auto"
+              />
             </div>
             <p className="text-sm text-white/90">
               Leading real estate development company providing quality housing solutions and project management services across Nigeria.

@@ -14,16 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          amenities: string[] | null
+          area_sqft: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          images: string[] | null
+          location: string
+          price: number | null
+          status: Database["public"]["Enums"]["project_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amenities?: string[] | null
+          area_sqft?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          location: string
+          price?: number | null
+          status?: Database["public"]["Enums"]["project_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amenities?: string[] | null
+          area_sqft?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          location?: string
+          price?: number | null
+          status?: Database["public"]["Enums"]["project_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor"
+      project_status:
+        | "Planning"
+        | "In Progress"
+        | "Completed"
+        | "Near Completion"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +253,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor"],
+      project_status: [
+        "Planning",
+        "In Progress",
+        "Completed",
+        "Near Completion",
+      ],
+    },
   },
 } as const

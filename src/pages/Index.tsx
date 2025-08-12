@@ -52,9 +52,9 @@ const Index = () => {
                 Access Admin Dashboard
               </Button>
             </Link>
-            <Link to="/">
+            <Link to="/projects">
               <Button variant="outline" size="lg">
-                View Public Dashboard
+                View Projects
               </Button>
             </Link>
           </div>

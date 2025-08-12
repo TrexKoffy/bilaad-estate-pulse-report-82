@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import ProjectDetail from "./pages/ProjectDetail";
+import Projects from "./pages/Projects";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import AddProject from "./pages/AddProject";
@@ -27,6 +28,7 @@ const App = () => (
             <div className="flex-1">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/projects" element={<Projects />} />
                 <Route path="/project/:projectId" element={<ProjectDetail />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/admin" element={

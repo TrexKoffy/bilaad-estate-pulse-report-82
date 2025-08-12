@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AdminSidebar } from '@/components/AdminSidebar';
+import { AdminProjectCard } from '@/components/AdminProjectCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -12,8 +12,7 @@ import {
   Calendar, 
   DollarSign,
   Search,
-  Plus,
-  Eye
+  Plus
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -72,15 +71,6 @@ export default function AdminDashboard() {
     totalValue: projects.reduce((sum, p) => sum + (p.price || 0), 0),
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Planning': return 'warning';
-      case 'In Progress': return 'default';
-      case 'Near Completion': return 'secondary';
-      case 'Completed': return 'success';
-      default: return 'outline';
-    }
-  };
 
   if (loading) {
     return (
@@ -163,82 +153,46 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          {/* Projects Section */}
-          <Card className="border-0 shadow-card">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Recent Projects</CardTitle>
-                <div className="relative w-64">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search projects..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {filteredProjects.length === 0 ? (
-                <div className="text-center py-8">
+          {/* Search Section */}
+          <div className="flex items-center justify-between">
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search projects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          {/* Projects Grid */}
+          {filteredProjects.length === 0 ? (
+            <Card className="border-0 shadow-card">
+              <CardContent className="py-16">
+                <div className="text-center">
                   <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No projects found</p>
+                  <p className="text-muted-foreground mb-4">No projects found</p>
                   <Link to="/admin/add-project">
-                    <Button className="mt-4">
+                    <Button className="bg-gradient-primary">
                       <Plus className="h-4 w-4 mr-2" />
                       Create your first project
                     </Button>
                   </Link>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredProjects.slice(0, 5).map((project) => (
-                    <div key={project.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3">
-                          <h3 className="font-medium text-foreground">{project.title}</h3>
-                          <Badge variant={getStatusColor(project.status) as any}>
-                            {project.status}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">{project.location}</p>
-                        <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
-                          {project.price && (
-                            <span>₦{(project.price / 1000000).toFixed(1)}M</span>
-                          )}
-                          {project.area_sqft && (
-                            <span>{project.area_sqft.toLocaleString()} sq ft</span>
-                          )}
-                          {project.bedrooms && (
-                            <span>{project.bedrooms} beds</span>
-                          )}
-                          {project.bathrooms && (
-                            <span>{project.bathrooms} baths</span>
-                          )}
-                        </div>
-                      </div>
-                      <Link to={`/admin/projects/${project.id}`}>
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </Button>
-                      </Link>
-                    </div>
-                  ))}
-                  {filteredProjects.length > 5 && (
-                    <div className="text-center pt-4">
-                      <Link to="/admin/projects">
-                        <Button variant="outline">
-                          View all {filteredProjects.length} projects
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProjects.map((project) => (
+                <AdminProjectCard 
+                  key={project.id} 
+                  project={project} 
+                  onProjectDeleted={fetchProjects}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

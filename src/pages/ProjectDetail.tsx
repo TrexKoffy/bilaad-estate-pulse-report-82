@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { mockProjects } from "@/lib/projectData";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import UnitCard from "@/components/UnitCard";
 import { 
   ArrowLeft, 
@@ -27,17 +28,124 @@ import {
 } from "lucide-react";
 import realEstateHeaderBg from "@/assets/real-estate-header-bg.jpg";
 
+interface Unit {
+  id: string;
+  unit_number: string;
+  unit_type: string;
+  sub_type?: string;
+  bedrooms?: number;
+  status: string;
+  progress: number;
+  target_completion?: string;
+  current_phase?: string;
+  foundation_status: string;
+  structure_status: string;
+  roofing_status: string;
+  mep_status: string;
+  interior_status: string;
+  finishing_status: string;
+  unit_challenges: string[];
+  photos: string[];
+  last_updated: string;
+}
+
+interface Project {
+  id: string;
+  title: string;
+  location: string;
+  status: string;
+  description?: string;
+  progress: number;
+  total_units: number;
+  completed_units: number;
+  target_completion: string;
+  current_phase: string;
+  manager: string;
+  start_date: string;
+  budget: string;
+  target_milestone: string;
+  activities_in_progress: string[];
+  completed_activities: string[];
+  challenges: string[];
+  progress_images: string[];
+  weekly_notes: string;
+  monthly_notes: string;
+  units?: Unit[];
+}
+
 export default function ProjectDetail() {
   const { projectId } = useParams();
-  const project = mockProjects.find(p => p.id === projectId);
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   const [editableNotes, setEditableNotes] = useState({
-    weekly: project?.weeklyNotes || "",
-    monthly: project?.monthlyNotes || "",
-    targetMilestone: project?.targetMilestone || ""
+    weekly: "",
+    monthly: "",
+    targetMilestone: ""
   });
+
+  useEffect(() => {
+    fetchProjectData();
+  }, [projectId]);
+
+  const fetchProjectData = async () => {
+    if (!projectId) return;
+    
+    try {
+      // Fetch project data
+      const { data: projectData, error: projectError } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .single();
+
+      if (projectError) throw projectError;
+
+      // Fetch units data
+      const { data: unitsData, error: unitsError } = await supabase
+        .from('units')
+        .select('*')
+        .eq('project_id', projectId);
+
+      if (unitsError) throw unitsError;
+
+      const fullProject = {
+        ...projectData,
+        units: unitsData || []
+      };
+
+      setProject(fullProject);
+      setEditableNotes({
+        weekly: projectData.weekly_notes || "",
+        monthly: projectData.monthly_notes || "",
+        targetMilestone: projectData.target_milestone || ""
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch project data: " + error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <Card className="border-0 shadow-card">
+          <CardContent className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading project details...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!project) {
     return (
@@ -55,23 +163,46 @@ export default function ProjectDetail() {
   }
 
   const statusColors = {
-    'planning': 'bg-warning text-warning-foreground',
-    'in-progress': 'bg-primary text-primary-foreground',
-    'near-completion': 'bg-secondary text-secondary-foreground',
-    'completed': 'bg-success text-success-foreground'
+    'Planning': 'bg-warning text-warning-foreground',
+    'In Progress': 'bg-primary text-primary-foreground',
+    'Near Completion': 'bg-secondary text-secondary-foreground',
+    'Completed': 'bg-success text-success-foreground'
   };
 
   const statusLabels = {
-    'planning': 'Planning',
-    'in-progress': 'In Progress',
-    'near-completion': 'Near Completion',
-    'completed': 'Completed'
+    'Planning': 'Planning',
+    'In Progress': 'In Progress',
+    'Near Completion': 'Near Completion',
+    'Completed': 'Completed'
   };
 
-  const handleSave = () => {
-    // In a real app, this would save to a database
-    console.log("Saving changes:", editableNotes);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({
+          weekly_notes: editableNotes.weekly,
+          monthly_notes: editableNotes.monthly,
+          target_milestone: editableNotes.targetMilestone,
+        })
+        .eq('id', projectId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Project notes updated successfully",
+      });
+
+      setIsEditing(false);
+      fetchProjectData(); // Refresh data
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to save changes: " + error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,14 +234,14 @@ export default function ProjectDetail() {
               <div>
                 <h1 className="text-3xl font-bold text-white flex items-center gap-3 drop-shadow-lg">
                   <Building2 className="h-8 w-8" />
-                  {project.name} Estate
+                  {project.title} Estate
                 </h1>
                 <p className="text-white/80 text-lg drop-shadow-md">Project Management Details</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Badge className={`${statusColors[project.status]} border-0 text-base px-4 py-2 shadow-lg`}>
-                {statusLabels[project.status]}
+              <Badge className={`${statusColors[project.status as keyof typeof statusColors]} border-0 text-base px-4 py-2 shadow-lg`}>
+                {statusLabels[project.status as keyof typeof statusLabels]}
               </Badge>
               <Button 
                 variant={isEditing ? "default" : "outline"}
@@ -146,7 +277,7 @@ export default function ProjectDetail() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Units</p>
-                  <p className="text-3xl font-bold text-secondary">{project.completedUnits}/{project.totalUnits}</p>
+                  <p className="text-3xl font-bold text-secondary">{project.completed_units}/{project.total_units}</p>
                 </div>
                 <Building2 className="h-8 w-8 text-secondary" />
               </div>
@@ -170,7 +301,7 @@ export default function ProjectDetail() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Target Date</p>
-                  <p className="text-2xl font-bold">{project.targetCompletion}</p>
+                  <p className="text-2xl font-bold">{project.target_completion}</p>
                 </div>
                 <Calendar className="h-8 w-8 text-muted-foreground" />
               </div>
@@ -206,7 +337,7 @@ export default function ProjectDetail() {
                       <Calendar className="h-4 w-4" />
                       Start Date
                     </div>
-                    <p className="font-medium">{project.startDate}</p>
+                    <p className="font-medium">{project.start_date}</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -215,14 +346,14 @@ export default function ProjectDetail() {
                       <TrendingUp className="h-4 w-4" />
                       Current Phase
                     </div>
-                    <p className="font-medium">{project.currentPhase}</p>
+                    <p className="font-medium">{project.current_phase}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-1">
                       <Building2 className="h-4 w-4" />
                       Total Units
                     </div>
-                    <p className="font-medium">{project.totalUnits} residential units</p>
+                    <p className="font-medium">{project.total_units} residential units</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-1">
@@ -252,7 +383,7 @@ export default function ProjectDetail() {
                   className="min-h-[100px]"
                 />
               ) : (
-                <p className="text-sm leading-relaxed">{project.targetMilestone}</p>
+                <p className="text-sm leading-relaxed">{project.target_milestone}</p>
               )}
             </CardContent>
           </Card>
@@ -281,8 +412,29 @@ export default function ProjectDetail() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {project.units.map((unit) => (
-                    <UnitCard key={unit.id} unit={unit} />
+                  {project.units?.map((unit) => (
+                    <UnitCard key={unit.id} unit={{
+                      id: unit.id,
+                      unitNumber: unit.unit_number,
+                      type: unit.unit_type as any,
+                      subType: unit.sub_type as any,
+                      bedrooms: unit.bedrooms,
+                      status: unit.status as any,
+                      progress: unit.progress,
+                      targetCompletion: unit.target_completion || '',
+                      currentPhase: unit.current_phase || '',
+                      activities: {
+                        foundation: unit.foundation_status as any,
+                        structure: unit.structure_status as any,
+                        roofing: unit.roofing_status as any,
+                        mep: unit.mep_status as any,
+                        interior: unit.interior_status as any,
+                        finishing: unit.finishing_status as any,
+                      },
+                      challenges: unit.unit_challenges,
+                      photos: unit.photos,
+                      lastUpdated: new Date(unit.last_updated).toLocaleDateString()
+                    }} />
                   ))}
                 </div>
                 
@@ -293,17 +445,17 @@ export default function ProjectDetail() {
                     <Button 
                       onClick={() => {
                         const unitData = {
-                          projectName: project.name,
+                          projectName: project.title,
                           units: project.units,
                           exportDate: new Date().toISOString(),
-                          totalUnits: project.units.length
+                          totalUnits: project.units?.length || 0
                         };
                         const dataStr = JSON.stringify(unitData, null, 2);
                         const dataBlob = new Blob([dataStr], {type: 'application/json'});
                         const url = URL.createObjectURL(dataBlob);
                         const link = document.createElement('a');
                         link.href = url;
-                        link.download = `${project.name}_unit_reports_${new Date().toISOString().split('T')[0]}.json`;
+                        link.download = `${project.title}_unit_reports_${new Date().toISOString().split('T')[0]}.json`;
                         link.click();
                         URL.revokeObjectURL(url);
                       }}
@@ -339,7 +491,7 @@ export default function ProjectDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {project.completedActivities.map((activity, index) => (
+                    {project.completed_activities?.map((activity, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <CheckCircle className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
                         <p className="text-sm">{activity}</p>
@@ -358,7 +510,7 @@ export default function ProjectDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {project.activitiesInProgress.map((activity, index) => (
+                    {project.activities_in_progress?.map((activity, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <Clock className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                         <p className="text-sm">{activity}</p>
@@ -380,7 +532,7 @@ export default function ProjectDetail() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {project.challenges.length > 0 ? (
+                  {project.challenges && project.challenges.length > 0 ? (
                     project.challenges.map((challenge, index) => (
                       <div key={index} className="flex items-start gap-3 p-4 bg-warning/5 border border-warning/20 rounded-lg">
                         <AlertTriangle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
@@ -479,7 +631,7 @@ export default function ProjectDetail() {
                       className="min-h-[150px]"
                     />
                   ) : (
-                    <p className="text-sm leading-relaxed">{project.weeklyNotes}</p>
+                    <p className="text-sm leading-relaxed">{project.weekly_notes}</p>
                   )}
                 </CardContent>
               </Card>
@@ -497,7 +649,7 @@ export default function ProjectDetail() {
                       className="min-h-[150px]"
                     />
                   ) : (
-                    <p className="text-sm leading-relaxed">{project.monthlyNotes}</p>
+                    <p className="text-sm leading-relaxed">{project.monthly_notes}</p>
                   )}
                 </CardContent>
               </Card>

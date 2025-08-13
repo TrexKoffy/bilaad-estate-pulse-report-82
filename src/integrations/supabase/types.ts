@@ -40,179 +40,54 @@ export type Database = {
       }
       projects: {
         Row: {
-          activities_in_progress: string[] | null
           amenities: string[] | null
           area_sqft: number | null
           bathrooms: number | null
           bedrooms: number | null
-          budget: string | null
-          challenges: string[] | null
-          completed_activities: string[] | null
-          completed_units: number | null
           created_at: string
           created_by: string | null
-          current_phase: string | null
           description: string | null
           id: string
           images: string[] | null
           location: string
-          manager: string | null
-          monthly_notes: string | null
           price: number | null
-          progress: number | null
-          progress_images: string[] | null
-          start_date: string | null
           status: Database["public"]["Enums"]["project_status"]
-          target_completion: string | null
-          target_milestone: string | null
           title: string
-          total_units: number | null
           updated_at: string
-          weekly_notes: string | null
         }
         Insert: {
-          activities_in_progress?: string[] | null
           amenities?: string[] | null
           area_sqft?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
-          budget?: string | null
-          challenges?: string[] | null
-          completed_activities?: string[] | null
-          completed_units?: number | null
           created_at?: string
           created_by?: string | null
-          current_phase?: string | null
           description?: string | null
           id?: string
           images?: string[] | null
           location: string
-          manager?: string | null
-          monthly_notes?: string | null
           price?: number | null
-          progress?: number | null
-          progress_images?: string[] | null
-          start_date?: string | null
           status?: Database["public"]["Enums"]["project_status"]
-          target_completion?: string | null
-          target_milestone?: string | null
           title: string
-          total_units?: number | null
           updated_at?: string
-          weekly_notes?: string | null
         }
         Update: {
-          activities_in_progress?: string[] | null
           amenities?: string[] | null
           area_sqft?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
-          budget?: string | null
-          challenges?: string[] | null
-          completed_activities?: string[] | null
-          completed_units?: number | null
           created_at?: string
           created_by?: string | null
-          current_phase?: string | null
           description?: string | null
           id?: string
           images?: string[] | null
           location?: string
-          manager?: string | null
-          monthly_notes?: string | null
           price?: number | null
-          progress?: number | null
-          progress_images?: string[] | null
-          start_date?: string | null
           status?: Database["public"]["Enums"]["project_status"]
-          target_completion?: string | null
-          target_milestone?: string | null
           title?: string
-          total_units?: number | null
           updated_at?: string
-          weekly_notes?: string | null
         }
         Relationships: []
-      }
-      units: {
-        Row: {
-          bedrooms: number | null
-          created_at: string | null
-          current_phase: string | null
-          finishing_status: string | null
-          foundation_status: string | null
-          id: string
-          interior_status: string | null
-          last_updated: string | null
-          mep_status: string | null
-          photos: string[] | null
-          progress: number | null
-          project_id: string | null
-          roofing_status: string | null
-          status: string
-          structure_status: string | null
-          sub_type: string | null
-          target_completion: string | null
-          unit_challenges: string[] | null
-          unit_number: string
-          unit_type: string
-          updated_at: string | null
-        }
-        Insert: {
-          bedrooms?: number | null
-          created_at?: string | null
-          current_phase?: string | null
-          finishing_status?: string | null
-          foundation_status?: string | null
-          id?: string
-          interior_status?: string | null
-          last_updated?: string | null
-          mep_status?: string | null
-          photos?: string[] | null
-          progress?: number | null
-          project_id?: string | null
-          roofing_status?: string | null
-          status?: string
-          structure_status?: string | null
-          sub_type?: string | null
-          target_completion?: string | null
-          unit_challenges?: string[] | null
-          unit_number: string
-          unit_type: string
-          updated_at?: string | null
-        }
-        Update: {
-          bedrooms?: number | null
-          created_at?: string | null
-          current_phase?: string | null
-          finishing_status?: string | null
-          foundation_status?: string | null
-          id?: string
-          interior_status?: string | null
-          last_updated?: string | null
-          mep_status?: string | null
-          photos?: string[] | null
-          progress?: number | null
-          project_id?: string | null
-          roofing_status?: string | null
-          status?: string
-          structure_status?: string | null
-          sub_type?: string | null
-          target_completion?: string | null
-          unit_challenges?: string[] | null
-          unit_number?: string
-          unit_type?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "units_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       user_roles: {
         Row: {

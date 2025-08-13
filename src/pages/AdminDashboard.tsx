@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AdminSidebar } from '@/components/AdminSidebar';
 import { AdminProjectCard } from '@/components/AdminProjectCard';
-import { MigrationButton } from '@/components/MigrationButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -99,15 +98,12 @@ export default function AdminDashboard() {
               <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
               <p className="text-muted-foreground">Manage your real estate projects</p>
             </div>
-            <div className="flex gap-3">
-              <MigrationButton />
-              <Link to="/admin/add-project">
-                <Button className="bg-gradient-primary">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Project
-                </Button>
-              </Link>
-            </div>
+            <Link to="/admin/add-project">
+              <Button className="bg-gradient-primary">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Project
+              </Button>
+            </Link>
           </div>
 
           {/* Stats Cards */}
